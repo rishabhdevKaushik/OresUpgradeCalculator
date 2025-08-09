@@ -1,7 +1,6 @@
-// src/EpicEquipment.js
-
 import React, { useState } from "react";
-import "./App.css"; // Import CSS styles
+import "./App.css";
+import { useEffect } from "react";
 
 import shinyOreImg from "./images/Shiny_Ore.webp";
 import glowyOreImg from "./images/Glowy_Ore.webp";
@@ -9,7 +8,7 @@ import starryOreImg from "./images/Starry_Ore.webp";
 
 // Epic equipment ore requirements (max level 27)
 const epicOreRequirements = [
-    { shiny: 0, glowy: 0, starry: 0 }, // Level 1
+    { shiny: 0, glowy: 0, starry: 0 },
     { shiny: 120, glowy: 0, starry: 0 },
     { shiny: 240, glowy: 20, starry: 0 },
     { shiny: 400, glowy: 0, starry: 0 },
@@ -40,53 +39,54 @@ const epicOreRequirements = [
 
 function EpicEquipment({ equipment }) {
     const [currentLevel, setCurrentLevel] = useState(1);
-    const [targetLevel, setTargetLevel] = useState(epicOreRequirements.length); // Default to max
+    const [targetLevel, setTargetLevel] = useState(epicOreRequirements.length);
     const [totalOres, setTotalOres] = useState(null);
     const [error, setError] = useState("");
 
-    const calculateOres = () => {
-        if (currentLevel >= targetLevel) {
-            setError("Current level must be less than target level.");
-            return null;
-        }
-        if (
-            currentLevel < 1 ||
-            targetLevel < 1 ||
-            currentLevel > epicOreRequirements.length ||
-            targetLevel > epicOreRequirements.length
-        ) {
-            setError(
-                "Levels must be between 1 and " + epicOreRequirements.length
-            );
-            return null;
-        }
-        setError("");
+    useEffect(() => {
+        const calculateOres = (
+            current = currentLevel,
+            target = targetLevel
+        ) => {
+            if (currentLevel >= targetLevel) {
+                setError("Current level must be less than target level.");
+                return null;
+            }
+            if (
+                currentLevel < 1 ||
+                targetLevel < 1 ||
+                currentLevel > epicOreRequirements.length ||
+                targetLevel > epicOreRequirements.length
+            ) {
+                setError(
+                    "Levels must be between 1 and " + epicOreRequirements.length
+                );
+                return null;
+            }
+            setError("");
 
-        const total = epicOreRequirements
-            .slice(currentLevel, targetLevel)
-            .reduce(
-                (acc, curr) => ({
-                    shiny: acc.shiny + curr.shiny,
-                    glowy: acc.glowy + curr.glowy,
-                    starry: acc.starry + curr.starry,
-                }),
-                { shiny: 0, glowy: 0, starry: 0 }
-            );
+            const total = epicOreRequirements
+                .slice(currentLevel, targetLevel)
+                .reduce(
+                    (acc, curr) => ({
+                        shiny: acc.shiny + curr.shiny,
+                        glowy: acc.glowy + curr.glowy,
+                        starry: acc.starry + curr.starry,
+                    }),
+                    { shiny: 0, glowy: 0, starry: 0 }
+                );
 
-        return total;
-    };
+            return total;
+        };
 
-    const handleCalculate = () => {
         const result = calculateOres();
         if (result) {
             setTotalOres(result);
         }
-    };
+    }, [currentLevel, targetLevel]);
 
     return (
         <div>
-            {/* <h2 style={{ textAlign: "center" }}>{equipment.name}</h2> */}
-
             <label>
                 Current Level:
                 <input
@@ -107,18 +107,43 @@ function EpicEquipment({ equipment }) {
                     onChange={(e) => setTargetLevel(Number(e.target.value))}
                 />
             </label>
-            <button onClick={handleCalculate}>Calculate Ores</button>
+            {/* <button onClick={handleCalculate}>Calculate Ores</button> */}
 
             {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {totalOres && (
+            {totalOres ? (
                 <div>
                     <h3>Total Ores Required:</h3>
-                    <p>Shiny Ore <img src={shinyOreImg} alt="Shiny Ore" style={{  width: '15px', height: 'auto'}} />: {totalOres.shiny}</p>
-                    <p>Glowy Ore <img src={glowyOreImg} alt="Glowy Ore" style={{  width: '15px', height: 'auto'}}/>: {totalOres.glowy}</p>
-                    <p>Starry Ore <img src={starryOreImg} alt="Starry Ore" style={{  width: '15px', height: 'auto'}}/>: {totalOres.starry}</p>{" "}
-                    {/* For epic equipment */}
+                    <p>
+                        Shiny Ore{" "}
+                        <img
+                            src={shinyOreImg}
+                            alt="Shiny Ore"
+                            style={{ width: "15px", height: "auto" }}
+                        />
+                        : {totalOres.shiny}
+                    </p>
+                    <p>
+                        Glowy Ore{" "}
+                        <img
+                            src={glowyOreImg}
+                            alt="Glowy Ore"
+                            style={{ width: "15px", height: "auto" }}
+                        />
+                        : {totalOres.glowy}
+                    </p>
+                    <p>
+                        Starry Ore{" "}
+                        <img
+                            src={starryOreImg}
+                            alt="Starry Ore"
+                            style={{ width: "15px", height: "auto" }}
+                        />
+                        : {totalOres.starry}
+                    </p>{" "}
                 </div>
+            ) : (
+                <></>
             )}
         </div>
     );

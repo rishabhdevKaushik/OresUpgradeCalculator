@@ -1,17 +1,15 @@
 // src/CommonEquipment.js
 
-import React, { useState } from 'react';
-import './App.css'; // Import CSS styles
+import React, { useState } from "react";
+import "./App.css"; // Import CSS styles
+import { useEffect } from "react";
 
 import shinyOreImg from "./images/Shiny_Ore.webp";
 import glowyOreImg from "./images/Glowy_Ore.webp";
 
-
-
-
 // Common equipment ore requirements (max level 18)
 const commonOreRequirements = [
-    { shiny: 0, glowy: 0 }, // Level 1
+    { shiny: 0, glowy: 0 },
     { shiny: 120, glowy: 0 },
     { shiny: 240, glowy: 20 },
     { shiny: 400, glowy: 0 },
@@ -33,52 +31,53 @@ const commonOreRequirements = [
 
 function CommonEquipment({ equipment }) {
     const [currentLevel, setCurrentLevel] = useState(1);
-    const [targetLevel, setTargetLevel] = useState(commonOreRequirements.length);
+    const [targetLevel, setTargetLevel] = useState(
+        commonOreRequirements.length
+    );
     const [totalOres, setTotalOres] = useState(null);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
-    const calculateOres = () => {
-        if (currentLevel >= targetLevel) {
-            setError("Current level must be less than target level.");
-            return null;
-        }
-        if (
-            currentLevel < 1 ||
-            targetLevel < 1 ||
-            currentLevel > commonOreRequirements.length ||
-            targetLevel > commonOreRequirements.length
-        ) {
-            setError(
-                "Levels must be between 1 and " + commonOreRequirements.length
-            );
-            return null;
-        }
-        setError("");
+    useEffect(() => {
+        const calculateOres = (
+            current = currentLevel,
+            target = targetLevel
+        ) => {
+            if (current >= target) {
+                setError("Current level must be less than target level.");
+                return null;
+            }
+            if (
+                current < 1 ||
+                target < 1 ||
+                current > commonOreRequirements.length ||
+                target > commonOreRequirements.length
+            ) {
+                setError(
+                    `Levels must be between 1 and ${commonOreRequirements.length}`
+                );
+                return null;
+            }
+            setError("");
 
-        const total = commonOreRequirements
-            .slice(currentLevel, targetLevel)
-            .reduce(
+            return commonOreRequirements.slice(current, target).reduce(
                 (acc, curr) => ({
                     shiny: acc.shiny + curr.shiny,
                     glowy: acc.glowy + curr.glowy,
                 }),
                 { shiny: 0, glowy: 0 }
             );
+        };
 
-        return total;
-    };
-
-    const handleCalculate = () => {
-        const result = calculateOres();
+        const result = calculateOres(currentLevel, targetLevel);
         if (result) {
             setTotalOres(result);
+        } else {
+            setTotalOres(null);
         }
-    };
+    }, [currentLevel, targetLevel]);
 
     return (
         <div>
-            {/*  */}
-            {/* <h2 style={{ textAlign: "center" }}>{equipment.name}</h2> */}
             <label>
                 Current Level:
                 <input
@@ -86,7 +85,9 @@ function CommonEquipment({ equipment }) {
                     value={currentLevel}
                     min="1"
                     max={commonOreRequirements.length}
-                    onChange={(e) => setCurrentLevel(Number(e.target.value))}
+                    onChange={(e) => {
+                        setCurrentLevel(Number(e.target.value));
+                    }}
                 />
             </label>
             <label>
@@ -96,19 +97,39 @@ function CommonEquipment({ equipment }) {
                     value={targetLevel}
                     min="1"
                     max={commonOreRequirements.length}
-                    onChange={(e) => setTargetLevel(Number(e.target.value))}
+                    onChange={(e) => {
+                        setTargetLevel(Number(e.target.value));
+                    }}
                 />
             </label>
-            <button onClick={handleCalculate}>Calculate Ores</button>
+            {/* <button onClick={handleCalculate}>Calculate Ores</button> */}
 
             {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {totalOres && (
+            {totalOres ? (
                 <div>
                     <h3>Total Ores Required:</h3>
-                    <p>Shiny Ore <img src={shinyOreImg} alt="Shiny Ore" style={{  width: '15px', height: 'auto'}}/>:  {totalOres.shiny}</p>
-                    <p>Glowy Ore <img src={glowyOreImg} alt="Glowy Ore" style={{  width: '15px', height: 'auto'}}/>: {totalOres.glowy}</p>
+                    <p>
+                        Shiny Ore{" "}
+                        <img
+                            src={shinyOreImg}
+                            alt="Shiny Ore"
+                            style={{ width: "15px", height: "auto" }}
+                        />
+                        : {totalOres.shiny}
+                    </p>
+                    <p>
+                        Glowy Ore{" "}
+                        <img
+                            src={glowyOreImg}
+                            alt="Glowy Ore"
+                            style={{ width: "15px", height: "auto" }}
+                        />
+                        : {totalOres.glowy}
+                    </p>
                 </div>
+            ) : (
+                <></>
             )}
         </div>
     );
