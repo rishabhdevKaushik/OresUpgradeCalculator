@@ -28,6 +28,7 @@ const equipmentData = {
         epic: [
             { name: "Frozen Arrow", img: "./images/Frozen_Arrow.webp" },
             { name: "Magic Mirror", img: "./images/Magic_Mirror.webp" },
+            { name: "Action Figure", img: "./images/Action_Figure.webp" },
         ],
     },
     "Grand Warden": {
